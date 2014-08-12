@@ -82,6 +82,10 @@
                 paramName: 'query',
                 transformResult: function (response) {
                     return typeof response === 'string' ? $.parseJSON(response) : response;
+                },
+                classes: {
+                    selected: 'autocomplete-selected',
+                    suggestion: 'autocomplete-suggestion' 
                 }
             };
 
@@ -99,10 +103,6 @@
         that.isLocal = false;
         that.suggestionsContainer = null;
         that.options = $.extend({}, defaults, options);
-        that.classes = {
-            selected: 'autocomplete-selected',
-            suggestion: 'autocomplete-suggestion'
-        };
         that.hint = null;
         that.hintValue = '';
         that.selection = null;
@@ -128,8 +128,8 @@
 
         initialize: function () {
             var that = this,
-                suggestionSelector = '.' + that.classes.suggestion,
-                selected = that.classes.selected,
+                suggestionSelector = '.' + that.options.classes.suggestion,
+                selected = that.options.classes.selected,
                 options = that.options,
                 container;
 
@@ -148,11 +148,6 @@
             container = $(that.suggestionsContainer);
 
             container.appendTo(options.appendTo);
-
-            // Only set width if it was provided:
-            if (options.width !== 'auto') {
-                container.width(options.width);
-            }
 
             // Listen for mouse over event on suggestions list:
             container.on('mouseover.autocomplete', suggestionSelector, function () {
@@ -210,13 +205,6 @@
             if (that.isLocal) {
                 options.lookup = that.verifySuggestionsFormat(options.lookup);
             }
-
-            // Adjust height, width and z-index:
-            $(that.suggestionsContainer).css({
-                'max-height': options.maxHeight + 'px',
-                'width': options.width + 'px',
-                'z-index': options.zIndex
-            });
         },
 
         clearCache: function () {
@@ -258,11 +246,6 @@
                 top: (offset.top + that.el.outerHeight()) + 'px',
                 left: offset.left + 'px'
             };
-
-            if (that.options.width === 'auto') {
-                styles.width = (that.el.outerWidth() - 2) + 'px';
-            }
-
             $(that.suggestionsContainer).css(styles);
         },
 
@@ -545,8 +528,8 @@
                 options = that.options,
                 formatResult = options.formatResult,
                 value = that.getQuery(that.currentValue),
-                className = that.classes.suggestion,
-                classSelected = that.classes.selected,
+                className = that.options.classes.suggestion,
+                classSelected = that.options.classes.selected,
                 container = $(that.suggestionsContainer),
                 beforeRender = options.beforeRender,
                 html = '',
@@ -566,14 +549,8 @@
                 html += '<div class="' + className + '" data-index="' + i + '">' + formatResult(suggestion, value) + '</div>';
             });
 
-            // If width is auto, adjust width before displaying suggestions,
-            // because if instance was created before input had width, it will be zero.
-            // Also it adjusts if input width has changed.
-            // -2px to account for suggestions border.
-            if (options.width === 'auto') {
-                width = that.el.outerWidth() - 2;
-                container.width(width > 0 ? width : 300);
-            }
+            // Set width from options only
+            container.width(options.width);
 
             container.html(html);
 
@@ -664,7 +641,7 @@
         activate: function (index) {
             var that = this,
                 activeItem,
-                selected = that.classes.selected,
+                selected = that.options.classes.selected,
                 container = $(that.suggestionsContainer),
                 children = container.children();
 
@@ -702,7 +679,7 @@
             }
 
             if (that.selectedIndex === 0) {
-                $(that.suggestionsContainer).children().first().removeClass(that.classes.selected);
+                $(that.suggestionsContainer).children().first().removeClass(that.options.classes.selected);
                 that.selectedIndex = -1;
                 that.el.val(that.currentValue);
                 that.findBestHint();
