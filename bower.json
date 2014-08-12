@@ -1,7 +1,7 @@
 {
-  "name": "devbridge-autocomplete",
+  "name": "autocomplete",
   "version": "1.2.9",
-  "homepage": "https://github.com/devbridge/jQuery-Autocomplete",
+  "homepage": "https://github.com/ria-com/jQuery-Autocomplete",
   "authors": [
     "Tomas Kirda"
   ],
