@@ -12,7 +12,7 @@ The standard jquery.autocomplete.js file is around 2.7KB when minified via Closu
 * `$(selector).autocomplete(options);`
     * Sets up autocomplete for input field(s).
     * `options`: An object literal which defines the settings to use for the autocomplete plugin.
-        * `serviceUrl`: Server side URL or callback function that returns serviceUrl string. Optional if local lookup data is provided.
+        * `serviceUrl`: Server side URL or array of urls or callback function that returns serviceUrl string or array. Optional if local lookup data is provided.
         * `lookup`: Lookup array for the suggestions. It may be array of strings or `suggestion` object literals.
             * `suggestion`: An object literal with the following format: `{ value: 'string', data: any }`.
         * `lookupFilter`: `function (suggestion, query, queryLowerCase) {}` filter function for local lookups. By default it does partial string match (case insensitive).
@@ -85,6 +85,26 @@ Ajax lookup:
 
     $('#autocomplete').autocomplete({
         serviceUrl: '/autocomplete/countries',
+        onSelect: function (suggestion) {
+            alert('You selected: ' + suggestion.value + ', ' + suggestion.data);
+        }
+    });
+    
+    // or
+    
+    $('#autocomplete').autocomplete({
+        serviceUrl: ['/autocomplete/countries', '/autocomplete/cities', '/autocomplete/states'],
+        onSelect: function (suggestion) {
+            alert('You selected: ' + suggestion.value + ', ' + suggestion.data);
+        }
+    });
+    
+    // or
+     
+    $('#autocomplete').autocomplete({
+        serviceUrl: function(q){
+            return ['/autocomplete/countries?q='+q, '/autocomplete/cities?query='+q];
+        },
         onSelect: function (suggestion) {
             alert('You selected: ' + suggestion.value + ', ' + suggestion.data);
         }

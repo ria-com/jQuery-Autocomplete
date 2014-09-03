@@ -482,18 +482,47 @@
                 if (that.currentRequest) {
                     that.currentRequest.abort();
                 }
-                that.currentRequest = $.ajax({
-                    url: serviceUrl,
-                    data: data,
-                    type: options.type,
-                    dataType: options.dataType
-                }).done(function (data) {
-                    that.currentRequest = null;
-                    that.processResponse(data, q, cacheKey);
-                    options.onSearchComplete.call(that.element, q);
-                }).fail(function (jqXHR, textStatus, errorThrown) {
-                    options.onSearchError.call(that.element, q, jqXHR, textStatus, errorThrown);
-                });
+                if($.isArray(serviceUrl)){
+                    var args = [];
+                    $.each(serviceUrl, function(index, item){
+                        args.push($.ajax({
+                            url: item,
+                            data: data,
+                            type: options.type,
+                            dataType: options.dataType
+                        }))
+                    });
+                    $.when.apply(null, args)
+                        .done(function (/* arguments */) {
+                            var results = {};
+                            $.each(arguments, function(index, item){
+                                $.each(JSON.parse(item[0]), function(ind, itm){
+                                    if(!results[JSON.stringify(itm)]){
+                                        results[JSON.stringify(itm)] = itm;
+                                    }
+                                });
+                            });
+                            that.currentRequest = null;
+                            that.processResponse(JSON.stringify($.map(results, function(val, key) { return val; })), q, cacheKey);
+                            options.onSearchComplete.call(that.element, q);
+                        })
+                        .fail(function (jqXHR, textStatus, errorThrown) {
+                            options.onSearchError.call(that.element, q, jqXHR, textStatus, errorThrown);
+                        })
+                }else{
+                    that.currentRequest = $.ajax({
+                        url: serviceUrl,
+                        data: data,
+                        type: options.type,
+                        dataType: options.dataType
+                    }).done(function (data) {
+                        that.currentRequest = null;
+                        that.processResponse(data, q, cacheKey);
+                        options.onSearchComplete.call(that.element, q);
+                    }).fail(function (jqXHR, textStatus, errorThrown) {
+                        options.onSearchError.call(that.element, q, jqXHR, textStatus, errorThrown);
+                    });
+                }
             }
         },
 
